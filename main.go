@@ -81,7 +81,15 @@ func main() {
 		})
 	})
 
-	addr := getenv("ADDR", ":8080")
+	// 兼容本地/云平台：优先 ADDR；否则使用平台通用的 PORT；最后回退到 8080
+	addr := os.Getenv("ADDR")
+	if addr == "" {
+		port := os.Getenv("PORT")
+		if port == "" {
+			port = "8080"
+		}
+		addr = ":" + port
+	}
 	log.Printf("Project API listening on %s (db=%s)\n", addr, dbPath)
 	must(http.ListenAndServe(addr, r))
 }
